@@ -41,8 +41,8 @@ int main() {
     // CLOCKS_PER_SEC is the number of clock ticks per second
     double cpu_time = 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC;
     std::chrono::duration<double, std::milli> exec_time = end - start;
-    std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
     std::cout << "CPU time: " << cpu_time << " ms" << std::endl;
+    std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
 
     return 0;
 }
