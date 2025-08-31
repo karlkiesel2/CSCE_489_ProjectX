@@ -21,6 +21,7 @@ int main()
     auto end = std::chrono::high_resolution_clock::now();
 
     // calculate CPU and Execution time in milliseconds
+    // CLOCKS_PER_SEC is the number of clock ticks per second
     double cpu_time = 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC;
     std::chrono::duration<double, std::milli> exec_time = end - start;
     std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;

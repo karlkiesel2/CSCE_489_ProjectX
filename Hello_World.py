@@ -8,7 +8,7 @@ start_cpu_time = time.process_time()
 # Print Hello, World!
 print("Hello, World!")
 
-# End timing and calculate execution time
+# End timing and calculate times
 end_cpu_time = time.process_time()
 end_time = time.time()
 
