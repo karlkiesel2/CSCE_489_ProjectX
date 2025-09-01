@@ -4,24 +4,26 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-#include <numeric> // std::partial_sum
+#include <numeric>
 
 /*
 This C++ program performs an I/O-bound benchmark by writing and reading a large number of integers to and from a file using parallel processing.
-Due to the inherent sequential nature of file I/O, true parallelization is not possible,
-but we can simulate some degree of concurrency by using separate threads for writing and reading.
 */
 
 const int N = 5000000;
-const std::string filename = "io_test_c_plus_plus_parallel.txt";
+// To avoid race conditions but still allow parallelism, use two different files for reading and writing
+const std::string readFilename = "io_test_parallel_read.txt";
+const std::string writeFilename = "io_test_c_plus_plus_parallel_write.txt";
+
+std::mutex file_mutex;
 
 // Function to write numbers to a file (Thread 1)
 void writeNumbersToFile() {
-    std::ofstream outFile(filename);
-    if (!outFile.is_open()) {
-        std::cerr << "Error opening output file." << std::endl;
-        return;
-    }
+    // First, set the file to empty if it already exists
+    // trunc will delete the file contents if it already exists
+    std::ofstream clearFile(writeFilename, std::ofstream::trunc);
+    clearFile.close();
+    std::ofstream outFile(writeFilename);
     for (int i = 0; i < N; ++i) {
         outFile << i << "\n";
     }
@@ -29,19 +31,16 @@ void writeNumbersToFile() {
 }
 
 // Function to read numbers from a file and calculate the sum (Thread 2)
-long readNumbersFromFile() {
-    std::ifstream inFile(filename);
-    if (!inFile.is_open()) {
-        std::cerr << "Error opening input file." << std::endl;
-        return -1; // Indicate error
-    }
+void readNumbersFromFile() {
+    std::ifstream inFile(readFilename);
     long sum = 0;
     int value;
     while (inFile >> value) {
         sum += value;
     }
     inFile.close();
-    return sum;
+
+    std::cout << "Sum: " << sum << std::endl;
 }
 
 int main() {
@@ -49,23 +48,13 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
     std::clock_t c_start = std::clock();
 
-    // Launch the threads for writing and reading
+    // Launch 2 threads. One for writing, one for reading.
     std::thread writeThread(writeNumbersToFile);
     std::thread readThread(readNumbersFromFile);
 
     // Wait for the threads to complete
     writeThread.join();
-    long sum = 0;
-    //It only measures correctly if it waits until after the read thread has completed
     readThread.join();
-    sum = readNumbersFromFile();
-
-    // Print the sum (only if reading was successful)
-    if (sum != -1) {
-        std::cout << "Sum: " << sum << std::endl;
-    } else {
-        std::cerr << "Error calculating sum." << std::endl;
-    }
 
     // End timing and calculate execution time
     std::clock_t c_end = std::clock();

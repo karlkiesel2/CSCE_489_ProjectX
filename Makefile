@@ -19,4 +19,4 @@ Parallel_IO: Parallel_IO.cpp
 	g++ -o Parallel_IO Parallel_IO.cpp -std=c++11 -O2 -pthread
 
 clean:
-	rm -f Hello_World Matrix_Mult File_IO io_test_c_plus_plus.txt io_test_python.txt User_Input Parallel Parallel_IO io_test_c_plus_plus_parallel.txt io_test_python_parallel.txt
+	rm -f Hello_World Matrix_Mult File_IO io_test_c_plus_plus.txt io_test_python.txt User_Input Parallel Parallel_IO io_test_c_plus_plus_parallel_write.txt io_test_python_parallel_write.txt
