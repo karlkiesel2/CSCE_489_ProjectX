@@ -1,13 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <sys/resource.h> // used for obtaining memory usage
+
 /*
 This C++ program performs a CPU-bound benchmark by multiplying two large matrices.
 */
 // This function multiplies two matrices A and B of size N x N
-void multiplyMatrices(const std::vector<std::vector<double>> &A,
-                      const std::vector<std::vector<double>> &B,
-                      std::vector<std::vector<double>> &C, int N)
+void multiplyMatrices(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B, std::vector<std::vector<double>> &C, int N)
 {
 
     for (int i = 0; i < N; ++i)
@@ -34,12 +34,12 @@ int main()
 
     // Create two N x N matrices filled with sample data and a result matrix
     int N = 500;
-    // matrix A has all values set to 1.0, matrix B has all values set to 2.0
+    // matrix A has all values set to 1.0, matrix B has all values set to 2.0, and C starts with all values set to 0
     std::vector<std::vector<double>> A(N, std::vector<double>(N, 1.0));
     std::vector<std::vector<double>> B(N, std::vector<double>(N, 2.0));
     std::vector<std::vector<double>> C(N, std::vector<double>(N, 0.0));
 
-    // start timing, perform multiplication, and end timing
+    // Multiply the matrices
     multiplyMatrices(A, B, C, N);
 
     // End timing and calculate execution time
@@ -52,6 +52,11 @@ int main()
     std::chrono::duration<double, std::milli> exec_time = end - start;
     std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
     std::cout << "CPU time: " << cpu_time << " ms" << std::endl;
+
+    // Peak memory usage in KB. This can add quite a bit of overhead, so comment out this block if you want to measure times.
+    rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    std::cout << "Peak Memory Usage: " << usage.ru_maxrss << " KB" << std::endl;
 
     return 0;
 }

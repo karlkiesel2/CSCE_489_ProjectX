@@ -1,4 +1,6 @@
 import time
+import resource # used for obtaining memory usage
+
 '''
 This Python program performs a CPU-bound benchmark by multiplying two large matrices.
 '''
@@ -24,10 +26,12 @@ def main():
     start_time = time.time()
     start_cpu_time = time.process_time()
 
+    # Same logic as in the C++ code
     N = 500
     A = [[1.0]*N for _ in range(N)]
     B = [[2.0]*N for _ in range(N)]
 
+    # C will be assigned to the result of the multiplication
     C = multiplyMatrtices(A, B)
 
     # End timing and calculate times
@@ -41,6 +45,10 @@ def main():
     # Print metrics
     print(f"CPU Time: {cpu_time:.2f} ms")
     print(f"Execution Time: {exec_time:.2f} ms")
+    
+    # Get peak memory usage. Comment out this block to measure times without the added overhead.
+    peak_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print(f"Peak Memory Usage: {peak_memory} KB")
 
 if __name__ == "__main__":
     main()

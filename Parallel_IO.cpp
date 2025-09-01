@@ -2,12 +2,11 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include <mutex>
-#include <vector>
-#include <numeric>
+#include <sys/resource.h> // used for obtaining memory usage
+
 
 /*
-This C++ program performs an I/O-bound benchmark by writing and reading a large number of integers to and from a file using parallel processing.
+This C++ program performs an I/O-bound benchmark by writing and reading a large number of integers to and from a file using parallel threads.
 */
 
 const int N = 5000000;
@@ -15,27 +14,29 @@ const int N = 5000000;
 const std::string readFilename = "io_test_parallel_read.txt";
 const std::string writeFilename = "io_test_c_plus_plus_parallel_write.txt";
 
-std::mutex file_mutex;
-
 // Function to write numbers to a file (Thread 1)
-void writeNumbersToFile() {
+void writeNumbersToFile()
+{
     // First, set the file to empty if it already exists
     // trunc will delete the file contents if it already exists
     std::ofstream clearFile(writeFilename, std::ofstream::trunc);
     clearFile.close();
     std::ofstream outFile(writeFilename);
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; ++i)
+    {
         outFile << i << "\n";
     }
     outFile.close();
 }
 
 // Function to read numbers from a file and calculate the sum (Thread 2)
-void readNumbersFromFile() {
+void readNumbersFromFile()
+{
     std::ifstream inFile(readFilename);
     long sum = 0;
     int value;
-    while (inFile >> value) {
+    while (inFile >> value)
+    {
         sum += value;
     }
     inFile.close();
@@ -43,7 +44,8 @@ void readNumbersFromFile() {
     std::cout << "Sum: " << sum << std::endl;
 }
 
-int main() {
+int main()
+{
     // Start timing
     auto start = std::chrono::high_resolution_clock::now();
     std::clock_t c_start = std::clock();
@@ -66,6 +68,11 @@ int main() {
 
     std::cout << "CPU time: " << cpu_time << " ms" << std::endl;
     std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
+
+    // Peak memory usage in KB. This can add quite a bit of overhead, so comment out this block if you want to measure times.
+    rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    std::cout << "Peak Memory Usage: " << usage.ru_maxrss << " KB" << std::endl;
 
     return 0;
 }

@@ -1,5 +1,6 @@
 import time
 import threading
+import resource # used for obtaining memory usage
 
 '''
 This Python program performs a parallel I/O-bound benchmark by writing and reading a large number of integers to and from a file using multiple threads.
@@ -39,7 +40,6 @@ def main():
 
     # Wait for the threads to finish.
     write_thread.join()
-    
     read_thread.join()
 
 
@@ -54,6 +54,10 @@ def main():
     # Print metrics
     print(f"CPU Time: {cpu_time:.2f} ms")
     print(f"Execution Time: {exec_time:.2f} ms")
+    
+    # Get peak memory usage. Comment out this block to measure times without the added overhead.
+    peak_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print(f"Peak Memory Usage: {peak_memory} KB")
 
 if __name__ == "__main__":
     main()

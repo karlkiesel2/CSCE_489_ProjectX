@@ -1,19 +1,18 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <thread> // For multithreading
-#include <mutex>  // For protecting shared resources
+#include <thread>
+#include <sys/resource.h> // used for obtaining memory usage
+
 
 /*
-This C++ program performs a CPU-bound benchmark by multiplying two large matrices using parallel processing.
+This C++ program performs a CPU-bound benchmark by multiplying two large matrices using parallel threads.
 */
 
 // This function multiplies a subset of rows of A with matrix B and stores the result in C
-void multiplyMatricesPartial(const std::vector<std::vector<double>> &A,
-                             const std::vector<std::vector<double>> &B,
-                             std::vector<std::vector<double>> &C, int N,
-                             int start_row, int end_row)
+void multiplyMatricesPartial(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B, std::vector<std::vector<double>> &C, int N, int start_row, int end_row)
 {
+    // same logic as in the single-threaded version, but now only for the rows from start_row to end_row
     for (int i = start_row; i < end_row; ++i)
     {
         for (int j = 0; j < N; ++j)
@@ -58,8 +57,7 @@ int main()
     {
         // start row is based on the thread index * number of rows per thread
         int start_row = i * rows_per_thread;
-        // end row is 
-        // special case for the last thread to handle the remaining rows
+        // end row is based on the next thread's start row, but we need a special case for the last thread to handle the remaining rows
         int end_row = (i == num_threads - 1) ? N : (i + 1) * rows_per_thread;
 
         // Create and start the thread
@@ -84,6 +82,10 @@ int main()
     std::cout << "Total CPU time: " << cpu_time << " ms" << std::endl;
     std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
 
+    // Peak memory usage in KB. This can add quite a bit of overhead, so comment out this block if you want to measure times.
+    rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    std::cout << "Peak Memory Usage: " << usage.ru_maxrss << " KB" << std::endl;
 
     return 0;
 }

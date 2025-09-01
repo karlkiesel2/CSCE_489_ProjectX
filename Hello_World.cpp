@@ -1,8 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
-#include "sys/types.h"
-#include "sys/sysinfo.h"
+#include <sys/resource.h> // used for obtaining memory usage
 
 /*
 A simple C++ program that prints "Hello, World!" and measures execution time.
@@ -26,6 +25,11 @@ int main()
     std::chrono::duration<double, std::milli> exec_time = end - start;
     std::cout << "Execution time: " << exec_time.count() << " ms" << std::endl;
     std::cout << "CPU time: " << cpu_time << " ms" << std::endl;
+
+    // Peak memory usage in KB. This can add quite a bit of overhead, so comment out this block if you want to measure times.
+    rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    std::cout << "Peak Memory Usage: " << usage.ru_maxrss << " KB" << std::endl;
 
     return 0;
 }

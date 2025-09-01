@@ -1,5 +1,7 @@
 import time
 import multiprocessing
+import resource # used for obtaining memory usage
+
 
 '''
 This Python program performs a CPU-bound benchmark by multiplying two large matrices using parallel processing.
@@ -27,6 +29,7 @@ def main():
 
     # Determine number of processes and rows per process
     num_processes = multiprocessing.cpu_count()
+    # Use floor division to ensure the result is a whole number
     rows_per_process = N // num_processes
     print(f"Using {num_processes} processes.")
 
@@ -35,7 +38,8 @@ def main():
     for i in range(num_processes):
         # same logic as C++. Each process get a chunk of rows to process. The last process may will take more if there is an uneven workload
         start_row = i * rows_per_process
-        end_row = (i + 1) * rows_per_process if i < num_processes - 1 else N
+        # use a ternary conditional operator (like in the C++ example) to handle the last process
+        end_row = N if i == num_processes - 1 else (i + 1) * rows_per_process
         # Start process
         p = multiprocessing.Process(target=multiplyMatricesPartial, args=(A, B, start_row, end_row, C))
         processes.append(p)
@@ -56,6 +60,10 @@ def main():
     # Print metrics
     print(f"CPU Time: {cpu_time:.2f} ms")
     print(f"Execution Time: {exec_time:.2f} ms")
+    
+    # Get peak memory usage. Comment out this block to measure times without the added overhead.
+    peak_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print(f"Peak Memory Usage: {peak_memory} KB")
 
 if __name__ == "__main__":
     main()
